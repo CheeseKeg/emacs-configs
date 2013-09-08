@@ -1,0 +1,40 @@
+(global-linum-mode t) ;; Line numbers
+
+(add-to-list 'load-path "~/.emacs.d/elisp")
+(add-to-list 'load-path "~/.emacs.d/auto-complete-1.3.1")
+
+;; artist-mode - Tools for drawing ascii art
+(require 'artist)
+
+;; emmet-mode - HTML and CSS abbreviations
+(require 'emmet-mode)
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+(add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
+(setq emmet-move-cursor-between-quotes t) ;; default nil
+
+;; coffee-mode - CoffeeScript syntax highlighting
+(require 'coffee-mode)
+(defun coffee-custom ()
+  "coffee-mode-hook"
+ (set (make-local-variable 'tab-width) 2))
+(add-hook 'coffee-mode-hook
+  '(lambda() (coffee-custom)))
+
+;; ropemacs - Ropemacs python emacs IDE
+;(autoload 'python-mode "python-mode" "Python Mode." t)
+;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+;(require 'python-mode)
+(autoload 'pymacs-apply "pymacs")
+(autoload 'pymacs-call "pymacs")
+(autoload 'pymacs-eval "pymacs" nil t)
+(autoload 'pymacs-exec "pymacs" nil t)
+(autoload 'pymacs-load "pymacs" nil t)
+;(require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
+(setq ropemacs-enable-autoimport t)
+
+;; auto-complete - Suggests text for autocompletion
+(require 'auto-complete)
+(global-auto-complete-mode t)

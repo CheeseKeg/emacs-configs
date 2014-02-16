@@ -21,6 +21,10 @@
 (add-hook 'coffee-mode-hook
   '(lambda() (coffee-custom)))
 
+;; lua-mode - Lua syntax highlighting
+(setq auto-mode-alist (cons '("\.lua$" . lua-mode) auto-mode-alist))
+(autoload 'lua-mode "lua-mode" "Lua editing mode." t)
+
 ;; ropemacs - Ropemacs python emacs IDE
 ;(autoload 'python-mode "python-mode" "Python Mode." t)
 ;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))

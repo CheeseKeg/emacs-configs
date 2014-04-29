@@ -3,6 +3,15 @@
 (add-to-list 'load-path "~/.emacs.d/elisp")
 (add-to-list 'load-path "~/.emacs.d/auto-complete-1.3.1")
 
+;; Package archives
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+			 ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+
+;; whitespace-mode - Highlight whitespace
+(require 'whitespace)
+(global-set-key "\C-c_w" 'whitespace-mode)
+
 ;; artist-mode - Tools for drawing ascii art
 (require 'artist)
 
@@ -20,6 +29,69 @@
  (set (make-local-variable 'tab-width) 2))
 (add-hook 'coffee-mode-hook
   '(lambda() (coffee-custom)))
+
+;; html-mode - Use spaces, not tabs
+(setq html-mode-hook
+  '(lambda () (progn
+    (set-variable 'indent-tabs-mode nil))))
+;; html-mode - Column marker for column 80
+(add-hook 'html-mode-hook (lambda () (interactive) (column-marker-1 80)))
+
+;; js2-mode - Enhanced JavaScript syntax highlighting
+(autoload 'js2-mode "js2" nil t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+;; js2-mode - Use spaces, not tabs
+(setq js2-mode-hook
+  '(lambda () (progn
+    (set-variable 'indent-tabs-mode nil))))
+;; js2-mode - Column marker for column 80
+(add-hook 'js2-mode-hook (lambda () (interactive) (column-marker-1 80)))
+;; js2-mode - Reasonable indenting
+(add-hook 'js2-mode-hook 'my-disable-indent-tabs-mode)
+(defun my-disable-indent-tabs-mode ()
+  (set-variable 'indent-tabs-mode nil))
+
+(eval-after-load "js2-mode"
+  '(progn
+     (setq js2-missing-semi-one-line-override t)
+     (setq-default js2-basic-offset 2) ; 2 spaces for indentation (if you prefer 2 spaces instead of default 4 spaces for tab)
+
+     ;; add from jslint global variable declarations to js2-mode globals list
+     ;; modified from one in http://www.emacswiki.org/emacs/Js2Mode
+     (defun my-add-jslint-declarations ()
+       (when (> (buffer-size) 0)
+         (let ((btext (replace-regexp-in-string
+                       (rx ":" (* " ") "true") " "
+                       (replace-regexp-in-string
+                        (rx (+ (char "\n\t\r "))) " "
+                        ;; only scans first 1000 characters
+                        (save-restriction (widen) (buffer-substring-no-properties (point-min) (min (1+ 1000) (point-max)))) t t))))
+           (mapc (apply-partially 'add-to-list 'js2-additional-externs)
+                 (split-string
+                  (if (string-match (rx "/*" (* " ") "global" (* " ") (group (*? nonl)) (* " ") "*/") btext)
+                      (match-string-no-properties 1 btext) "")
+                  (rx (* " ") "," (* " ")) t))
+           )))
+     (add-hook 'js2-post-parse-callbacks 'my-add-jslint-declarations)))
+;(custom-set-variables  
+;  '(js2-basic-offset 2)  
+;  '(js2-bounce-indent-p t)  
+;)
+;; add buffer-local indicator for whether prog-mode-hook has run.
+(defun my-set-pmh-ran ()
+  (set (make-local-variable 'my-pmh-ran) t))
+
+(add-hook 'prog-mode-hook 'my-set-pmh-ran)
+
+(add-hook 'js2-mode-hook 'my-run-pmh-if-not-ran)
+(defun my-run-pmh-if-not-ran ()
+  (unless (bound-and-true-p my-pmh-ran)
+    (run-hooks 'prog-mode-hook)))
+
+;; javascript-mode indent size
+(setq js-indent-level 2)
+
+
 
 ;; ropemacs - Ropemacs python emacs IDE
 ;(autoload 'python-mode "python-mode" "Python Mode." t)
